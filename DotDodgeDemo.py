@@ -40,6 +40,8 @@ clock = pyg.time.Clock()
 # Initialize speed timer
 speed_timer = pyg.time.get_ticks()
 
+player_score = 0
+
 def display_start_menu():
     screen.fill(BG_COLOR)
     title = font.render("Your Demise", True, TEXT_COLOR)
@@ -55,7 +57,7 @@ def display_start_menu():
 
 def display_game_over():
     screen.fill(GAMEOVER_COLOR)
-    text = font.render(f"u r dead - Your Score: {speed_timer / 500:.0f}", True, TEXT_COLOR)
+    text = font.render(f"u r dead - Your Score: {player_score}", True, TEXT_COLOR)
     screen.blit(text, (SCREEN_WIDTH // 2 - text.get_width() // 2, SCREEN_HEIGHT // 3))
     
     button = pyg.Rect(SCREEN_WIDTH // 2 - 100, SCREEN_HEIGHT // 2, 200, 50)
@@ -65,6 +67,9 @@ def display_game_over():
     
     pyg.display.update()
     return button
+
+
+
 
 while run:
     if display_menu:
@@ -107,14 +112,18 @@ while run:
 
         # Increase enemy speed over time
         current_time = pyg.time.get_ticks()
+        
         if current_time - speed_timer > INCREMENT_INTERVAL:
             speed_timer = current_time
+            player_score += 1
             if enemy_speed[0] > 0:
                 enemy_speed[0] += SPEED_INCREMENT
+                
             else:
                 enemy_speed[0] -= SPEED_INCREMENT
             if enemy_speed[1] > 0:
                 enemy_speed[1] += SPEED_INCREMENT
+                
             else:
                 enemy_speed[1] -= SPEED_INCREMENT
 
@@ -137,6 +146,7 @@ while run:
                     enemy_speed = [1, 1]
                     speed_timer = pyg.time.get_ticks()
                     game_over = False
+                    player_score = 0
 
     for event in pyg.event.get():
         if event.type == pyg.QUIT:
