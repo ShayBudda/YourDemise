@@ -18,7 +18,7 @@ INCREMENT_INTERVAL = 2000
 
 # Set up display
 screen = pyg.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-pyg.display.set_caption("My First Pygame")
+pyg.display.set_caption("Your Demise")
 
 # Create player and enemy
 player = pyg.Rect(300, 250, 25, 25)
@@ -42,7 +42,7 @@ speed_timer = pyg.time.get_ticks()
 
 def display_start_menu():
     screen.fill(BG_COLOR)
-    title = font.render("My First Pygame", True, TEXT_COLOR)
+    title = font.render("Your Demise", True, TEXT_COLOR)
     screen.blit(title, (SCREEN_WIDTH // 2 - title.get_width() // 2, SCREEN_HEIGHT // 3))
     
     start_button = pyg.Rect(SCREEN_WIDTH // 2 - 100, SCREEN_HEIGHT // 2, 200, 50)
@@ -55,7 +55,7 @@ def display_start_menu():
 
 def display_game_over():
     screen.fill(GAMEOVER_COLOR)
-    text = font.render(f"Game Over - Your Score: {speed_timer / 500:.0f}", True, TEXT_COLOR)
+    text = font.render(f"u r dead - Your Score: {speed_timer / 500:.0f}", True, TEXT_COLOR)
     screen.blit(text, (SCREEN_WIDTH // 2 - text.get_width() // 2, SCREEN_HEIGHT // 3))
     
     button = pyg.Rect(SCREEN_WIDTH // 2 - 100, SCREEN_HEIGHT // 2, 200, 50)
