@@ -3,6 +3,7 @@ import sys
 
 # Initialize Pygame
 pyg.init()
+pyg.mixer.init()
 
 # Constants
 SCREEN_WIDTH = 800
@@ -15,6 +16,11 @@ BUTTON_COLOR = (0, 200, 0)
 GAMEOVER_COLOR = (150, 0, 0)
 SPEED_INCREMENT = 0.1
 INCREMENT_INTERVAL = 2000
+
+#Load Background Music
+background_music = 'Pixel Dreams.mp3'
+death_sound = ''
+wall_bounce_sound = ''
 
 # Set up display
 screen = pyg.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -42,6 +48,10 @@ speed_timer = pyg.time.get_ticks()
 
 player_score = 0
 
+#plays background music in a loop
+pyg.mixer.music.load(background_music)
+pyg.mixer.music.play(-1)
+
 def display_start_menu():
     screen.fill(BG_COLOR)
     title = font.render("Your Demise", True, TEXT_COLOR)
@@ -68,8 +78,42 @@ def display_game_over():
     pyg.display.update()
     return button
 
+def fade_transition_effect():
+    colors = [(255, 0, 0), (0, 255, 0), (0, 0, 255), (255, 255, 0), (0, 255, 255), (255, 0, 255)]
+    fade_steps = 30  # Number of steps for the fade effect
 
+    for idx, color in enumerate(colors):
+        for alpha in range(0, 256, int(256 / fade_steps)):  # Fade in
+            fade_surface = pyg.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
+            fade_surface.fill(color)
+            fade_surface.set_alpha(alpha)
+            screen.blit(fade_surface, (0, 0))
+            
+            if idx < len(colors) // 2:
+                text = font.render("Are You Ready", True, TEXT_COLOR)
+            else:
+                text = font.render("To Die?", True, TEXT_COLOR)
+                
+            screen.blit(text, (SCREEN_WIDTH // 2 - text.get_width() // 2, SCREEN_HEIGHT // 2 - text.get_height() // 2))
+            
+            pyg.display.update()
+            pyg.time.delay(10)
 
+        for alpha in range(255, -1, -int(256 / fade_steps)):  # Fade out
+            fade_surface = pyg.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
+            fade_surface.fill(color)
+            fade_surface.set_alpha(alpha)
+            screen.blit(fade_surface, (0, 0))
+            
+            if idx < len(colors) // 2:
+                text = font.render("Are You Ready", True, TEXT_COLOR)
+            else:
+                text = font.render("To Die?", True, TEXT_COLOR)
+                
+            screen.blit(text, (SCREEN_WIDTH // 2 - text.get_width() // 2, SCREEN_HEIGHT // 2 - text.get_height() // 2))
+            
+            pyg.display.update()
+            pyg.time.delay(10)
 
 while run:
     if display_menu:
@@ -79,6 +123,7 @@ while run:
                 run = False
             if event.type == pyg.MOUSEBUTTONDOWN:
                 if start_button.collidepoint(event.pos):
+                    fade_transition_effect()
                     display_menu = False
                     game_over = False
                     player.topleft = (300, 250)
@@ -118,12 +163,10 @@ while run:
             player_score += 1
             if enemy_speed[0] > 0:
                 enemy_speed[0] += SPEED_INCREMENT
-                
             else:
                 enemy_speed[0] -= SPEED_INCREMENT
             if enemy_speed[1] > 0:
                 enemy_speed[1] += SPEED_INCREMENT
-                
             else:
                 enemy_speed[1] -= SPEED_INCREMENT
 
@@ -140,6 +183,7 @@ while run:
                 run = False
             if event.type == pyg.MOUSEBUTTONDOWN:
                 if button.collidepoint(event.pos):
+                    fade_transition_effect()
                     # Reset game state
                     player.topleft = (300, 250)
                     enemy.topleft = (100, 100)
@@ -154,5 +198,3 @@ while run:
 
 pyg.quit()
 sys.exit()
-# I can't figure this out, but the scoring system is a little broken at the moment 
-# It accumulates score rather than giving a new one every time the game resets
