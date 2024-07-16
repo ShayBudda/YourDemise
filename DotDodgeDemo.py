@@ -49,9 +49,12 @@ speed_timer = pyg.time.get_ticks()
 
 player_score = 0
 
-# Play background music in a loop
-pyg.mixer.music.load(background_music)
-pyg.mixer.music.play(-1)
+# Load and play background music
+try:
+    pyg.mixer.music.load(background_music)
+    pyg.mixer.music.play(-1)
+except Exception as e:
+    print(f"Error loading background music: {e}")
 
 def display_start_menu():
     screen.fill(BG_COLOR)
@@ -60,7 +63,7 @@ def display_start_menu():
     
     start_button = pyg.Rect(SCREEN_WIDTH // 2 - 100, SCREEN_HEIGHT // 2, 200, 50)
     pyg.draw.rect(screen, BUTTON_COLOR, start_button)
-    button_text = button_font.render("Start", True, TEXT_COLOR)
+    button_text = button_font.render("Don't Click", True, TEXT_COLOR)
     screen.blit(button_text, (SCREEN_WIDTH // 2 - button_text.get_width() // 2, SCREEN_HEIGHT // 2 + 5))
     
     pyg.display.update()
@@ -73,7 +76,7 @@ def display_game_over():
     
     button = pyg.Rect(SCREEN_WIDTH // 2 - 100, SCREEN_HEIGHT // 2, 200, 50)
     pyg.draw.rect(screen, BUTTON_COLOR, button)
-    button_text = button_font.render("Restart", True, TEXT_COLOR)
+    button_text = button_font.render("Die Again", True, TEXT_COLOR)
     screen.blit(button_text, (SCREEN_WIDTH // 2 - button_text.get_width() // 2, SCREEN_HEIGHT // 2 + 5))
     
     pyg.display.update()
@@ -143,8 +146,11 @@ while run:
                     game_over = False
                     player_score = 0
                     # Switch back to background music
-                    pyg.mixer.music.load(background_music)
-                    pyg.mixer.music.play(-1)
+                    try:
+                        pyg.mixer.music.load(background_music)
+                        pyg.mixer.music.play(-1)
+                    except Exception as e:
+                        print(f"Error loading background music: {e}")
 
     if display_menu:
         display_start_menu()
@@ -170,10 +176,16 @@ while run:
         enemy.move_ip(enemy_speed[0], enemy_speed[1])
         if enemy.left < 0 or enemy.right > SCREEN_WIDTH:
             enemy_speed[0] = -enemy_speed[0]
-            pyg.mixer.Sound(wall_bounce_sound).play()  # Play bounce sound
+            try:
+                pyg.mixer.Sound(wall_bounce_sound).play()  # Play bounce sound
+            except Exception as e:
+                print(f"Error playing wall bounce sound: {e}")
         if enemy.top < 0 or enemy.bottom > SCREEN_HEIGHT:
             enemy_speed[1] = -enemy_speed[1]
-            pyg.mixer.Sound(wall_bounce_sound).play()  # Play bounce sound
+            try:
+                pyg.mixer.Sound(wall_bounce_sound).play()  # Play bounce sound
+            except Exception as e:
+                print(f"Error playing wall bounce sound: {e}")
 
         # Increase enemy speed over time
         current_time = pyg.time.get_ticks()
@@ -194,9 +206,15 @@ while run:
         if player.colliderect(enemy):
             game_over = True
             pyg.mixer.music.stop()  # Stop background music
-            pyg.mixer.Sound(death_sound).play()  # Play death sound
-            pyg.mixer.music.load(game_over_music)
-            pyg.mixer.music.play(-1)
+            try:
+                pyg.mixer.Sound(death_sound).play()  # Play death sound
+            except Exception as e:
+                print(f"Error playing death sound: {e}")
+            try:
+                pyg.mixer.music.load(game_over_music)
+                pyg.mixer.music.play(-1)
+            except Exception as e:
+                print(f"Error loading game over music: {e}")
 
         pyg.display.update()
         clock.tick(60)
