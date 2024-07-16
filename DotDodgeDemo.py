@@ -17,10 +17,11 @@ GAMEOVER_COLOR = (150, 0, 0)
 SPEED_INCREMENT = 0.1
 INCREMENT_INTERVAL = 2000
 
-#Load Background Music
+# Load Background Music
 background_music = 'Pixel Dreams.mp3'
-death_sound = ''
-wall_bounce_sound = ''
+death_sound = 'Death_Sound.wav'
+wall_bounce_sound = 'Bounce_Sound.wav'
+game_over_music = 'game_over_ambience.wav'
 
 # Set up display
 screen = pyg.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -48,7 +49,7 @@ speed_timer = pyg.time.get_ticks()
 
 player_score = 0
 
-#plays background music in a loop
+# Play background music in a loop
 pyg.mixer.music.load(background_music)
 pyg.mixer.music.play(-1)
 
@@ -116,12 +117,12 @@ def fade_transition_effect():
             pyg.time.delay(10)
 
 while run:
-    if display_menu:
-        start_button = display_start_menu()
-        for event in pyg.event.get():
-            if event.type == pyg.QUIT:
-                run = False
-            if event.type == pyg.MOUSEBUTTONDOWN:
+    for event in pyg.event.get():
+        if event.type == pyg.QUIT:
+            run = False
+        if event.type == pyg.MOUSEBUTTONDOWN:
+            if display_menu:
+                start_button = display_start_menu()
                 if start_button.collidepoint(event.pos):
                     fade_transition_effect()
                     display_menu = False
@@ -130,6 +131,23 @@ while run:
                     enemy.topleft = (100, 100)
                     enemy_speed = [1, 1]
                     speed_timer = pyg.time.get_ticks()
+            elif game_over:
+                button = display_game_over()
+                if button.collidepoint(event.pos):
+                    fade_transition_effect()
+                    # Reset game state
+                    player.topleft = (300, 250)
+                    enemy.topleft = (100, 100)
+                    enemy_speed = [1, 1]
+                    speed_timer = pyg.time.get_ticks()
+                    game_over = False
+                    player_score = 0
+                    # Switch back to background music
+                    pyg.mixer.music.load(background_music)
+                    pyg.mixer.music.play(-1)
+
+    if display_menu:
+        display_start_menu()
     elif not game_over:
         screen.fill(BG_COLOR)
         
@@ -152,8 +170,10 @@ while run:
         enemy.move_ip(enemy_speed[0], enemy_speed[1])
         if enemy.left < 0 or enemy.right > SCREEN_WIDTH:
             enemy_speed[0] = -enemy_speed[0]
+            pyg.mixer.Sound(wall_bounce_sound).play()  # Play bounce sound
         if enemy.top < 0 or enemy.bottom > SCREEN_HEIGHT:
             enemy_speed[1] = -enemy_speed[1]
+            pyg.mixer.Sound(wall_bounce_sound).play()  # Play bounce sound
 
         # Increase enemy speed over time
         current_time = pyg.time.get_ticks()
@@ -173,28 +193,15 @@ while run:
         # Check for collision
         if player.colliderect(enemy):
             game_over = True
+            pyg.mixer.music.stop()  # Stop background music
+            pyg.mixer.Sound(death_sound).play()  # Play death sound
+            pyg.mixer.music.load(game_over_music)
+            pyg.mixer.music.play(-1)
 
         pyg.display.update()
         clock.tick(60)
     else:
-        button = display_game_over()
-        for event in pyg.event.get():
-            if event.type == pyg.QUIT:
-                run = False
-            if event.type == pyg.MOUSEBUTTONDOWN:
-                if button.collidepoint(event.pos):
-                    fade_transition_effect()
-                    # Reset game state
-                    player.topleft = (300, 250)
-                    enemy.topleft = (100, 100)
-                    enemy_speed = [1, 1]
-                    speed_timer = pyg.time.get_ticks()
-                    game_over = False
-                    player_score = 0
-
-    for event in pyg.event.get():
-        if event.type == pyg.QUIT:
-            run = False
+        display_game_over()
 
 pyg.quit()
 sys.exit()
