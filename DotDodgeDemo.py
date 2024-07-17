@@ -1,11 +1,13 @@
 import pygame as pyg
 import sys
+import effects
 
 # Initialize Pygame
 pyg.init()
 pyg.mixer.init()
 
 # Constants
+WARNING_COLOR = (255, 55, 55)
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
 BG_COLOR = (225, 225, 100)
@@ -22,6 +24,7 @@ background_music = 'Pixel Dreams.mp3'
 death_sound = 'Death_Sound.wav'
 wall_bounce_sound = 'Bounce_Sound.wav'
 game_over_music = 'game_over_ambience.wav'
+metal_ring = 'metal_ring.wav'
 
 # Set up display
 screen = pyg.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -35,6 +38,7 @@ enemy_speed = [1, 1]
 # Set up fonts
 font = pyg.font.Font(None, 74)
 button_font = pyg.font.Font(None, 50)
+font_small = pyg.font.Font(None, 24)
 
 # Game state
 display_menu = True
@@ -65,6 +69,9 @@ def display_start_menu():
     pyg.draw.rect(screen, BUTTON_COLOR, start_button)
     button_text = button_font.render("Don't Click", True, TEXT_COLOR)
     screen.blit(button_text, (SCREEN_WIDTH // 2 - button_text.get_width() // 2, SCREEN_HEIGHT // 2 + 5))
+
+    warning_text = font_small.render("Seizure Warning", True, WARNING_COLOR)
+    screen.blit(warning_text, (650, 550))
     
     pyg.display.update()
     return start_button
@@ -83,7 +90,7 @@ def display_game_over():
     return button
 
 def fade_transition_effect():
-    colors = [(255, 0, 0), (0, 255, 0), (0, 0, 255), (255, 255, 0), (0, 255, 255), (255, 0, 255)]
+    colors = [(181, 2, 2), (94, 1, 1), (173, 45, 45), (255, 22, 22), (245, 122, 122), (255, 0, 0)]
     fade_steps = 30  # Number of steps for the fade effect
 
     for idx, color in enumerate(colors):
@@ -201,6 +208,18 @@ while run:
                 enemy_speed[1] += SPEED_INCREMENT
             else:
                 enemy_speed[1] -= SPEED_INCREMENT
+
+        #Transition Call when score when score is divisable by 20
+        if player_score % 20 == 0 and player_score > 15:
+            pyg.mixer.Sound(metal_ring).play() #play ring sound
+            effects.difficulty_transition(player_score, screen, font, SCREEN_WIDTH, SCREEN_HEIGHT, TEXT_COLOR)
+            player_score += 1
+            try:
+                pyg.mixer.Sound(metal_ring).play()  # Play ring sound
+            except Exception as e:
+                print(f"Error playing metal_ring sound: {e}")
+
+
 
         # Check for collision
         if player.colliderect(enemy):
