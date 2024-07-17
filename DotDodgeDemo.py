@@ -1,5 +1,6 @@
 import pygame as pyg
 import sys
+import effects
 
 # Initialize Pygame
 pyg.init()
@@ -193,6 +194,8 @@ while run:
         if current_time - speed_timer > INCREMENT_INTERVAL:
             speed_timer = current_time
             player_score += 1
+            if player_score %20:
+                effects.transition.difficulty_transition()
             if enemy_speed[0] > 0:
                 enemy_speed[0] += SPEED_INCREMENT
             else:
